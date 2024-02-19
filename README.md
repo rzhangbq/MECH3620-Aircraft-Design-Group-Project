@@ -7,3 +7,8 @@
 | April 16       | Milestone 3: Preliminary Weight & Balance, Stability Analysis, Stabilizer and Landing Gear Design | [ ]        |
 | May 2          | Milestone 4: Structural Analyses, Propulsion System, Refinements, and Cost Analysis | [ ]        |
 | May 16         | Final Project Report                              | [ ]        |
+
+[Overleaf Link](https://www.overleaf.com/2749244943sytfjxxdtqnv#ebe4f7)
+## Milestone 1: Market Analyses & Mission Requirements
+ - [] ZHANG Rushan: Collection of Example Aircrafts
+ - [] LAI Shing Kai: Market Analyses

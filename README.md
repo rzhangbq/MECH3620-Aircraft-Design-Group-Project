@@ -8,5 +8,5 @@
 
 [Overleaf Link](https://www.overleaf.com/2749244943sytfjxxdtqnv#ebe4f7)
 ## Milestone 1: Market Analyses & Mission Requirements
- - [ ] ZHANG Rushan: Collection of Example Aircrafts
+ - [x] ZHANG Rushan: Collection of Example Aircrafts
  - [ ] LAI Shing Kai: Market Analyses

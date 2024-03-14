@@ -6,7 +6,7 @@
  - [ ] 2023-05-02 - Milestone 4: Structural Analyses, Propulsion System, Refinements, and Cost Analysis
  - [ ] 2023-05-16 - Final Project Report
 
-[Report Link](https://www.overleaf.com/2749244943sytfjxxdtqnv#ebe4f7)
+[Report Link](https://www.overleaf.com/2749244943sytfjxxdtqnv#ebe4f7)\
 [MT Presentation Link](https://www.overleaf.com/5688962445bpddggvtttsc#78a3e1)
 ## Milestone 1: Market Analyses & Mission Requirements
  - [x] ZHANG Rushan: Collection of Example Aircrafts

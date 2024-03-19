@@ -140,8 +140,8 @@ begin
 	rho_sea = 1.225 # in kg/m^3
 	rho = 1.19 # random 
 	σ = rho/rho_sea # Density ratio to sea level
-	CL_takeoff = 1.5
-	TOP = 280 # Source: Daniel P. Raymer, Aircraft design: a conceptual approach. Chapter 5 Thrust-to-weight ratio and wing loading, paragraph 5.3 Wing Loading, sub-paragraph Takeoff Distance, page 88-89 and "Fig. 5.4 Takeoff distance estimation".
+	CL_takeoff = 2.0
+	TOP = 100 # Source: Daniel P. Raymer, Aircraft design: a conceptual approach. Chapter 5 Thrust-to-weight ratio and wing loading, paragraph 5.3 Wing Loading, sub-paragraph Takeoff Distance, page 88-89 and "Fig. 5.4 Takeoff distance estimation".
 end
 
 # ╔═╡ 5e23c4ec-2325-4236-b22e-3dd5f9e4e8db
@@ -149,7 +149,7 @@ takeoff_condition(WbS, σ, CL_takeoff, TOP) = (0.0929/4.448) * WbS / (σ * CL_ta
 # unit convert!
 
 # ╔═╡ 1f18d5b5-efab-4313-81e0-9237816e4e01
-wing_loadings = 200:12000; # W / S_ref
+wing_loadings = 10:12000; # W / S_ref
 
 # ╔═╡ 1f687549-a952-4286-a7e2-22561f96a7e4
 TbW_takeoff = takeoff_condition.(wing_loadings, σ, CL_takeoff, TOP)
@@ -158,7 +158,7 @@ TbW_takeoff = takeoff_condition.(wing_loadings, σ, CL_takeoff, TOP)
 # matching chart landing
 begin
 	CL_landing = 2.4 # Maximum lift coefficient at landing
-	s_L = 2103		 # Runway length in Changi(4000m) hk(3800m)
+	s_L = 1000		 # Runway length in Changi(4000m) hk(3800m) xch ()
 	# s_FL is the landing field length
 	# s_FL = r * s_L
 	s_a = 300 		 # Approach distance for airliners in m
@@ -177,7 +177,7 @@ landing_sls = landing_condition(s_L, s_a, σ, CL_landing) / landingFF
 wbs_landing = fill(landing_sls, n);
 
 # ╔═╡ b27344f2-ddf6-47ce-b6af-ae59f8075ebd
-TbWs = range(0, 0.5, length = n);
+TbWs = range(0, 1.5, length = n);
 
 # ╔═╡ 4d9f99ee-d559-4f68-aa00-90344778b892
 begin
@@ -191,9 +191,12 @@ end
 # ╔═╡ b3c55fbf-9c76-4f30-898a-d08b8019d688
 # stall 
 begin 
-	V_stall = 0.514 * 150 # need to decide (150 knots to m/s)
-	CL_max = 2.0 		  # Maximum lift coefficient with no flaps
+	V_stall = 0.514 * 110 # need to decide (150 knots to m/s)
+	CL_max = 1.4 		  # Maximum lift coefficient with no flaps
 end
+
+# ╔═╡ c5a47323-faf7-4810-ac10-3fab50d925cf
+
 
 # ╔═╡ 3fa8e635-76d7-4b4f-ac1a-5b09c7529fe6
 dynamic_pressure(rho, V) = 1/2 * rho * V^2
@@ -225,7 +228,7 @@ end
 # ╔═╡ f2f42ea8-24a7-41e6-be4f-ceafdcc5777f
 # climb
 begin
-	CL_max_climb = 2.0  # Maximum climb lift coefficient
+	CL_max_climb = 1.2  # Maximum climb lift coefficient
 	n_eng 		 = 2 	# Number of engines
 	# CD0 		 = 0.01612 # = CD_min have to define
 	CL_required = 71686/(0.5*0.267*(810/3.6)^2*28.6)
@@ -275,6 +278,12 @@ begin
 	e_10deg = e_5deg - 0.1 # Flaps 10 deg
 end
 
+# ╔═╡ f2898666-788a-459d-a694-da5d323b1578
+begin
+	MTOW_WF = 1
+	MLDW_WF = 0.96 # Slides P42
+end
+
 # ╔═╡ 72586aab-cfe2-414b-99e8-c2f0b4e3275d
 # takeoff climb OEI (Climb1)
 begin	
@@ -282,7 +291,7 @@ begin
 	G_takeoff 	 = 0.012 # two-engine airplanes
 	ΔCD0_takeoff = 0.035 # Flaps 5 deg, gear down
 	k_takeoff 	 = induced_drag_coefficient(e_5deg, AR)
-	WF_takeoff_climb = 0.99 * takeoffFF # Takeoff climb weight fraction
+	WF_takeoff_climb = 1 # Takeoff climb weight fraction
 	
 	TbW_takeoff_climb = thrust_corrected_climb(k_s_takeoff, CD0 + ΔCD0_takeoff, CL_max_climb, k_takeoff, G_takeoff, n_eng, WF_takeoff_climb, OEI = true)
 	
@@ -296,7 +305,7 @@ begin
 	G_trans 	= 0 # two-engine airplanes
 	ΔCD0_trans 	= 0.030 # Flaps 10 deg, gear up
 	k_climb 	= induced_drag_coefficient(e_10deg, AR)
-	WF_trans 	= 0.99 * climbFF # Weight fraction at transition climb 
+	WF_trans 	= MTOW_WF # Weight fraction at transition climb 
 	
 	TbW_trans_climb = thrust_corrected_climb(k_s_trans, CD0 + ΔCD0_trans, CL_max_climb, k_climb, G_trans, n_eng, WF_trans, OEI = true)
 	
@@ -310,7 +319,7 @@ begin
 	G_second 	= 0.024 # two-engine airplanes
 	ΔCD0_second = 0.01 # Flaps 5 deg, gear up
 	k_second 	= induced_drag_coefficient(e_5deg, AR)
-	WF_second   = 0.98 * WF_trans # Weight fraction at second climb
+	WF_second   = MTOW_WF # Weight fraction at second climb
 
 	TbW_second_climb = thrust_corrected_climb(k_s_second, CD0 + ΔCD0_second, CL_max_climb, k_second, G_second, n_eng, WF_second, OEI = true)
 	
@@ -324,7 +333,7 @@ begin
 	G_enroute 	 = 0.012
 	ΔCD0_enroute = 0.0 # Clean, i.e. no flaps
 	k_enroute 	 = induced_drag_coefficient(e_0deg, AR)
-	WF_enroute 	 = 0.98 * WF_second # Weight fraction at enroute climb
+	WF_enroute 	 = MTOW_WF # Weight fraction at enroute climb
 
 	TbW_enroute_climb = thrust_corrected_climb(k_s_enroute, CD0 + ΔCD0_enroute, CL_max_climb, k_enroute, G_enroute, n_eng, WF_enroute, MCT = true, OEI = true)
 	
@@ -338,7 +347,7 @@ begin
 	G_baulked_OEI = 0.021
 	ΔCD0_baulked_OEI = 0.030 # Flaps 10 deg, gear up
 	k_baulked_OEI = induced_drag_coefficient(e_10deg, AR)
-	WF_baulked_OEI = landingFF # Maximum landing weight fraction
+	WF_baulked_OEI = MLDW_WF # Slides P42
 
 	TbW_baulked_OEI = thrust_corrected_climb(k_s_enroute, CD0 + ΔCD0_baulked_OEI, CL_max_climb, k_baulked_OEI, G_baulked_OEI, n_eng, WF_baulked_OEI, OEI = true)
 	
@@ -352,7 +361,7 @@ begin
 	G_baulked_AEO    = 0.032
 	ΔCD0_baulked_AEO = 0.030 # Flaps 10 deg, gear up
 	k_baulked_AEO    = induced_drag_coefficient(e_10deg, AR)
-	WF_baulked_AEO   = landingFF # NEED TO CHECK
+	WF_baulked_AEO   = MLDW_WF # NEED TO CHECK
 
 	TbW_baulked_AEO = thrust_corrected_climb(k_s_enroute, CD0 + ΔCD0_baulked_AEO, CL_max_climb, k_baulked_AEO, G_baulked_AEO, n_eng, WF_baulked_AEO)
 	
@@ -391,7 +400,7 @@ k = induced_drag_coefficient(e_0deg, AR)
 cruise_condition(wing_loading, q, CD0, k) = q * CD0 / wing_loading + k / q * wing_loading
 
 # ╔═╡ 2f17134a-c087-469a-bb47-b661f770cb0e
-WF_cruise = 0.253776
+WF_cruise = 1 - cruise1FF
 # need to define and change
 
 # ╔═╡ b64521b0-917b-4683-b7ac-ff18b297fd75
@@ -435,7 +444,7 @@ tbw_ceiling = fill(ceiling_condition(CD0, k, 0.001), length(wing_loadings))
 
 # ╔═╡ b216fad1-d84e-4159-9322-f75117587f81
 begin 
-	plot(xlabel = "W/S, N/m²", ylabel = "T/W", title = "Matching Chart")
+	plot(xlabel = "W/S, N/m²", ylabel = "T/W", title = "Matching Chart", legend = :topleft)
 	plot!(wing_loadings, TbW_takeoff, label = "Takeoff")
 	plot!(wbs_landing, TbWs, label = "Landing")
 	plot!(stalls, TbWs, label = "Stall")
@@ -448,9 +457,20 @@ begin
 	plot!(wing_loadings, tbw_ceiling, label = "Ceiling")
 	plot!(wing_loadings, tbw_cruise, label = "Cruise")
 	annotate!(4000, 0.4, "Feasible")
-	plot!(ylim = (0, 0.5))
-	scatter!([last(WTOs)/28.6], [32000/last(WTOs)], label = "Ours")
+	plot!(ylim = (0, 1.5))
+	plot!(xlim = (0, 3500))
+	scatter!([last(stalls)], [last(baulked_OEI_climb)], label = "Optimal Point")
+	scatter!([last(WTOs)/28], [32000*0.8/last(WTOs)], label = "Ours")
 end
+
+# ╔═╡ 9dfdf306-9dc9-47d1-84e6-919696ef8608
+last(WTOs)/25
+
+# ╔═╡ 52394458-2946-41e4-a2ed-3a599f198939
+wing_loadings
+
+# ╔═╡ a7a19db9-bb64-4bba-aeda-51a24733cfff
+
 
 # ╔═╡ e2f97f9e-abad-41f3-9c35-97a78aae8af0
 
@@ -2015,6 +2035,7 @@ version = "1.4.1+1"
 # ╠═b27344f2-ddf6-47ce-b6af-ae59f8075ebd
 # ╠═4d9f99ee-d559-4f68-aa00-90344778b892
 # ╠═b3c55fbf-9c76-4f30-898a-d08b8019d688
+# ╠═c5a47323-faf7-4810-ac10-3fab50d925cf
 # ╠═3fa8e635-76d7-4b4f-ac1a-5b09c7529fe6
 # ╠═5d7fdbe4-1fa0-4ea9-b166-384c3fc334b7
 # ╠═47fdacd7-0f1e-444f-8713-51f9c0c4330c
@@ -2028,6 +2049,7 @@ version = "1.4.1+1"
 # ╠═eaa059a0-87ae-4d8f-b0f1-887887f9a5a0
 # ╠═83f44849-b83b-4cf8-b5f5-ccaf431e9a43
 # ╠═e4017752-5451-4724-997d-954d9a24f8e0
+# ╠═f2898666-788a-459d-a694-da5d323b1578
 # ╠═72586aab-cfe2-414b-99e8-c2f0b4e3275d
 # ╠═e4edc163-d2d9-4580-93a5-c8025709bbd3
 # ╠═7447e3f7-098c-4e2d-81d1-1165ac57c307
@@ -2045,6 +2067,9 @@ version = "1.4.1+1"
 # ╠═ab40b735-5b9f-4ed9-bd50-57c6093ba223
 # ╠═a03e4d71-2a94-46a6-9e5d-f6d2666e5d2a
 # ╠═b216fad1-d84e-4159-9322-f75117587f81
+# ╠═9dfdf306-9dc9-47d1-84e6-919696ef8608
+# ╠═52394458-2946-41e4-a2ed-3a599f198939
+# ╠═a7a19db9-bb64-4bba-aeda-51a24733cfff
 # ╠═e2f97f9e-abad-41f3-9c35-97a78aae8af0
 # ╠═65df055e-bf88-49df-9226-dbc41b7f46cf
 # ╟─00000000-0000-0000-0000-000000000001

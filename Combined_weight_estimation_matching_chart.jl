@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.38
+# v0.19.41
 
 using Markdown
 using InteractiveUtils
@@ -30,14 +30,12 @@ gr(
 # ╔═╡ 6b378b10-d556-11ee-29e6-0be9ad4cd778
 begin
 	""" These are variables """
-	CD = 0
-	CL = 0
 	g = 9.81
-	Wpayload = 1350*g #in N
+	Wpayload = 1000*g #in N
 	Wcrew = 200*g 	  #in N
 	Cruise_speed = 810*1000/3600 #in m/s
-	LD_cruise = 12
-	R1 = 2058*1852 #in meter
+	LD_cruise = 11.5
+	R1 = 4500*1000 #in meter
 	Cruise_altitude = 13700 #in meter
 end
 
@@ -55,9 +53,6 @@ begin
 	cruise_weight_fraction(R,SFC,V,LtoD) = exp(-R*SFC/(V*LtoD))
 end;
 
-# ╔═╡ ac44120c-11c4-4c48-8571-b30f26125844
-cruise1FF = cruise_weight_fraction(R1, cruise_SFC, Cruise_speed, LD_cruise)
-
 # ╔═╡ 1ff72358-00b0-43c7-8981-defcf8f67797
 empty_weight_raymer(WTO, A, C) = A * WTO^C
 
@@ -68,19 +63,15 @@ maximum_takeoff_weight(WPL, Wcrew, WfWTO, WeWTO) = (WPL + Wcrew)/(1 - WfWTO - We
 loiter_weight_fraction(E, SFC, L_D) = exp(-E * SFC / L_D)
 
 # ╔═╡ ba8ceae6-efea-4361-b5b1-10891cd79f41
-loiterFF = loiter_weight_fraction(45*60,cruise_SFC,LD_cruise)
+loiterFF = loiter_weight_fraction(45*60,cruise_SFC*1.3,LD_cruise)
 
 # ╔═╡ 12533352-8f97-44f4-80da-3b6e441d205b
 A, C = 1.07, -0.06
 
-# ╔═╡ 497b7ce9-6bf0-48c7-b12f-37d101ed8009
-# ╠═╡ disabled = true
-#=╠═╡
-cruise1FF = cruise_weight_fraction(R1,cruise_SFC,Cruise_speed,LD_cruise)
-  ╠═╡ =#
-
 # ╔═╡ 15a846c8-74b5-4768-be31-0e879912007c
+#=╠═╡
 Wf_man = 1.06 * (1 - takeoffFF * climbFF * cruise1FF *loiterFF* landingFF)
+  ╠═╡ =#
 
 # ╔═╡ 1e7c02a2-9fb2-43a6-88de-35f2de6ede51
 function compute_maximum_takeoff_weight(
@@ -130,10 +121,14 @@ function compute_maximum_takeoff_weight(
 end
 
 # ╔═╡ d0a5473b-b8cd-420c-b107-f1c4cbbbaeb3
+#=╠═╡
 WTOs, erros = compute_maximum_takeoff_weight(7500g, Wpayload, Wcrew, Wf_man, A, C)
+  ╠═╡ =#
 
 # ╔═╡ 8f36e62f-5db3-4670-970e-5860670ed5b7
+#=╠═╡
 MTOW = last(WTOs)/g
+  ╠═╡ =#
 
 # ╔═╡ 1b4acf72-4156-4c6b-b038-e1300150942b
 begin
@@ -400,13 +395,18 @@ k = induced_drag_coefficient(e_0deg, AR)
 cruise_condition(wing_loading, q, CD0, k) = q * CD0 / wing_loading + k / q * wing_loading
 
 # ╔═╡ 2f17134a-c087-469a-bb47-b661f770cb0e
+#=╠═╡
 WF_cruise = 1 - cruise1FF
 # need to define and change
+  ╠═╡ =#
 
 # ╔═╡ b64521b0-917b-4683-b7ac-ff18b297fd75
+#=╠═╡
 tbw_cruise = 1/σ_cruise^0.6 * WF_cruise * cruise_condition.(wing_loadings, q, CD0, k);
+  ╠═╡ =#
 
 # ╔═╡ 1acf4cfe-7aee-4908-88ca-1234a31fa8b6
+#=╠═╡
 begin
 	plot(
 		xlabel = "(W/S), N/m²", 
@@ -435,6 +435,7 @@ begin
 	# scatter!([WbS_stall], [0.271], label = "Constrained Optimum 2 (Max Wing Loading)")
 	 # Plot max wing loading point evaluated graphically
 end
+  ╠═╡ =#
 
 # ╔═╡ ab40b735-5b9f-4ed9-bd50-57c6093ba223
 ceiling_condition(C_D0, K, G = 0.001) = G + 2 * sqrt(C_D0 * K)
@@ -442,7 +443,47 @@ ceiling_condition(C_D0, K, G = 0.001) = G + 2 * sqrt(C_D0 * K)
 # ╔═╡ a03e4d71-2a94-46a6-9e5d-f6d2666e5d2a
 tbw_ceiling = fill(ceiling_condition(CD0, k, 0.001), length(wing_loadings))
 
+# ╔═╡ abcb0572-c125-4658-8fd2-80a0c7a29ea9
+begin
+	CJ3weight = 6291*g
+	CJ3wing = 27.32
+	CJ3Thrust = 22.2*10^3
+	
+	CJ4weight = 7761*g
+	CJ4wing = 30.66
+	CJ4Thrust = 32*10^3
+	
+	Phenoweight = 8414.59*g
+	Phenowingloading = 286*g
+	PhenoThrust = 15.471*2*10^3
+	
+	Hawkerweight = 7393.5*g
+	HawkerThrust = 28*10^3
+	Hawkerwing = 22.4
+
+	
+	Learjetweight = 9800*g
+	LearjetTtoW = 0.438
+	Learjetwing = 28.95
+	
+	Citationxweight=  9200*g
+	CitationxThrust = 18.32*2*10^3
+	Citationxwing = 34.35
+	
+	Citationlweight = 13971*g
+	Citationlwing = 50.4
+	CitationlThrust = 26275*2
+	
+	PCweight = 8500*g
+	PCwing = 30.91
+	PCThrust = 30*10^3
+
+	
+	
+end
+
 # ╔═╡ b216fad1-d84e-4159-9322-f75117587f81
+#=╠═╡
 begin 
 	plot(xlabel = "W/S, N/m²", ylabel = "T/W", title = "Matching Chart", legend = :topleft)
 	plot!(wing_loadings, TbW_takeoff, label = "Takeoff")
@@ -460,11 +501,29 @@ begin
 	plot!(ylim = (0, 1.5))
 	plot!(xlim = (0, 3500))
 	scatter!([last(stalls)], [last(baulked_OEI_climb)], label = "Optimal Point")
-	scatter!([last(WTOs)/28], [32000*0.8/last(WTOs)], label = "Ours")
+	scatter!([last(WTOs)/27], [32000*0.8/last(WTOs)], label = "Ours")
+	scatter!([CJ3weight/CJ3wing], [CJ3Thrust/CJ3weight], label = "CJ3")
+	scatter!([CJ4weight/CJ4wing], [CJ4Thrust/CJ4weight], label = "CJ4")
+	scatter!([Phenowingloading], [PhenoThrust/Phenoweight], label = "Phenom 300")
+	scatter!([Hawkerweight/Hawkerwing], [HawkerThrust/Hawkerweight], label = "Hawker400 XPR")
+	scatter!([Learjetweight/Learjetwing], [LearjetTtoW], label = "Learjet")
+	scatter!([Citationxweight/Citationxwing], [CitationxThrust/Citationxweight], label = "Citation XLS")
+	scatter!([Citationlweight/Citationlwing], [CitationlThrust/Citationlweight], label = "Citation latitude")
+	scatter!([PCweight/PCwing], [PCThrust/PCweight], label = "PC-24")
+	
 end
+  ╠═╡ =#
+
+# ╔═╡ 7db95481-787f-4d43-ac34-ee803f31baf2
+
+
+# ╔═╡ 28f32b3f-aecf-4822-943e-e8e6be19583f
+
 
 # ╔═╡ 9dfdf306-9dc9-47d1-84e6-919696ef8608
-last(WTOs)/25
+#=╠═╡
+last(WTOs)/27
+  ╠═╡ =#
 
 # ╔═╡ 52394458-2946-41e4-a2ed-3a599f198939
 wing_loadings
@@ -476,7 +535,20 @@ wing_loadings
 
 
 # ╔═╡ 65df055e-bf88-49df-9226-dbc41b7f46cf
-[last(WTOs)/28.6], [32000/last(WTOs)]
+#=╠═╡
+[last(WTOs)/26.6], [32000/last(WTOs)]
+  ╠═╡ =#
+
+# ╔═╡ 497b7ce9-6bf0-48c7-b12f-37d101ed8009
+# ╠═╡ disabled = true
+#=╠═╡
+cruise1FF = cruise_weight_fraction(R1,cruise_SFC,Cruise_speed,LD_cruise)
+  ╠═╡ =#
+
+# ╔═╡ ac44120c-11c4-4c48-8571-b30f26125844
+#=╠═╡
+cruise1FF = cruise_weight_fraction(R1, cruise_SFC, Cruise_speed, LD_cruise)
+  ╠═╡ =#
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -497,7 +569,7 @@ Plots = "~1.40.2"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.0"
+julia_version = "1.10.2"
 manifest_format = "2.0"
 project_hash = "e835307c71f2babecb8d429263a64498e2f2c69f"
 
@@ -524,9 +596,9 @@ version = "0.1.36"
 
 [[deps.Adapt]]
 deps = ["LinearAlgebra", "Requires"]
-git-tree-sha1 = "cea4ac3f5b4bc4b3000aa55afb6e5626518948fa"
+git-tree-sha1 = "6a55b747d1812e699320963ffde36f1ebdda4099"
 uuid = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
-version = "4.0.3"
+version = "4.0.4"
 weakdeps = ["StaticArrays"]
 
     [deps.Adapt.extensions]
@@ -621,9 +693,9 @@ version = "3.24.0"
 
 [[deps.ColorTypes]]
 deps = ["FixedPointNumbers", "Random"]
-git-tree-sha1 = "eb7f0f8307f71fac7c606984ea5fb2817275d6e4"
+git-tree-sha1 = "b10d0b65641d57b8b4d5e234446582de5047050d"
 uuid = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
-version = "0.11.4"
+version = "0.11.5"
 
 [[deps.ColorVectorSpace]]
 deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "Requires", "Statistics", "TensorCore"]
@@ -665,7 +737,7 @@ weakdeps = ["Dates", "LinearAlgebra"]
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
-version = "1.0.5+1"
+version = "1.1.0+0"
 
 [[deps.ComponentArrays]]
 deps = ["ArrayInterface", "ChainRulesCore", "LinearAlgebra", "Requires", "StaticArrayInterface"]
@@ -684,15 +756,15 @@ weakdeps = ["InverseFunctions"]
 
 [[deps.ConcurrentUtilities]]
 deps = ["Serialization", "Sockets"]
-git-tree-sha1 = "87944e19ea747808b73178ce5ebb74081fdf2d35"
+git-tree-sha1 = "6cbbd4d241d7e6579ab354737f4dd95ca43946e1"
 uuid = "f0e56b4a-5159-44fe-b623-3e5288b988bb"
-version = "2.4.0"
+version = "2.4.1"
 
 [[deps.ConstructionBase]]
 deps = ["LinearAlgebra"]
-git-tree-sha1 = "c53fc348ca4d40d7b371e71fd52251839080cbc9"
+git-tree-sha1 = "260fd2400ed2dab602a7c15cf10c1933c59930a2"
 uuid = "187b0558-2788-49d3-abe0-74a17ed4e7c9"
-version = "1.5.4"
+version = "1.5.5"
 
     [deps.ConstructionBase.extensions]
     ConstructionBaseIntervalSetsExt = "IntervalSets"
@@ -703,9 +775,9 @@ version = "1.5.4"
     StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [[deps.Contour]]
-git-tree-sha1 = "d05d9e7b7aedff4e5b51a029dced05cfb6125781"
+git-tree-sha1 = "439e35b0b36e2e5881738abc8857bd92ad6ff9a8"
 uuid = "d38c429a-6771-53c6-b99e-75d170b6e991"
-version = "0.6.2"
+version = "0.6.3"
 
 [[deps.CoordinateTransformations]]
 deps = ["LinearAlgebra", "StaticArrays"]
@@ -731,9 +803,9 @@ version = "1.6.1"
 
 [[deps.DataStructures]]
 deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
-git-tree-sha1 = "0f4b5d62a88d8f59003e43c25a8a90de9eb76317"
+git-tree-sha1 = "97d79461925cdb635ee32116978fc735b9463a39"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-version = "0.18.18"
+version = "0.18.19"
 
 [[deps.DataValueInterfaces]]
 git-tree-sha1 = "bfc1187b79289637fa0ef6d4436ebdfe6905cbd6"
@@ -834,9 +906,9 @@ uuid = "a3f928ae-7b40-5064-980b-68af3947d34b"
 version = "2.13.93+0"
 
 [[deps.Format]]
-git-tree-sha1 = "f3cf88025f6d03c194d73f5d13fee9004a108329"
+git-tree-sha1 = "9c68794ef81b08086aeb32eeaf33531668d5f5fc"
 uuid = "1fa38f19-a742-5d3f-a2b9-30dd87b9d5f8"
-version = "1.3.6"
+version = "1.3.7"
 
 [[deps.ForwardDiff]]
 deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "LinearAlgebra", "LogExpFunctions", "NaNMath", "Preferences", "Printf", "Random", "SpecialFunctions"]
@@ -913,9 +985,9 @@ version = "1.0.2"
 
 [[deps.HTTP]]
 deps = ["Base64", "CodecZlib", "ConcurrentUtilities", "Dates", "ExceptionUnwrapping", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
-git-tree-sha1 = "db864f2d91f68a5912937af80327d288ea1f3aee"
+git-tree-sha1 = "8e59b47b9dc525b70550ca082ce85bcd7f5477cd"
 uuid = "cd3eb016-35fb-5094-929b-558a96fad6f3"
-version = "1.10.3"
+version = "1.10.5"
 
 [[deps.HarfBuzz_jll]]
 deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "Graphite2_jll", "JLLWrappers", "Libdl", "Libffi_jll", "Pkg"]
@@ -951,9 +1023,13 @@ version = "0.14.0"
 
 [[deps.InverseFunctions]]
 deps = ["Test"]
-git-tree-sha1 = "68772f49f54b479fa88ace904f6127f0a3bb2e46"
+git-tree-sha1 = "896385798a8d49a255c398bd49162062e4a4c435"
 uuid = "3587e190-3f89-42d0-90ee-14403ec27112"
-version = "0.1.12"
+version = "0.1.13"
+weakdeps = ["Dates"]
+
+    [deps.InverseFunctions.extensions]
+    DatesExt = "Dates"
 
 [[deps.InvertedIndices]]
 git-tree-sha1 = "0dc7b50b8d436461be01300fd8cd45aa0274b038"
@@ -1031,9 +1107,9 @@ version = "1.15.1"
 
 [[deps.Latexify]]
 deps = ["Format", "InteractiveUtils", "LaTeXStrings", "MacroTools", "Markdown", "OrderedCollections", "Requires"]
-git-tree-sha1 = "cad560042a7cc108f5a4c24ea1431a9221f22c1b"
+git-tree-sha1 = "e0b5cd21dc1b44ec6e64f351976f961e6f31d6c4"
 uuid = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
-version = "0.16.2"
+version = "0.16.3"
 
     [deps.Latexify.extensions]
     DataFramesExt = "DataFrames"
@@ -1175,9 +1251,9 @@ version = "0.3.2"
 
 [[deps.Missings]]
 deps = ["DataAPI"]
-git-tree-sha1 = "f66bdc5de519e8f8ae43bdc598782d35a25b1272"
+git-tree-sha1 = "ec4f7fbeab05d7747bdf98eb74d130a2a2ed298d"
 uuid = "e1d29d7a-bbdc-5cf2-9ac0-f12de2c33e28"
-version = "1.1.0"
+version = "1.2.0"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
@@ -1197,9 +1273,9 @@ uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 version = "1.2.0"
 
 [[deps.OffsetArrays]]
-git-tree-sha1 = "6a731f2b5c03157418a20c12195eb4b74c8f8621"
+git-tree-sha1 = "e64b4f5ea6b7389f6f046d13d4896a8f9c1ba71e"
 uuid = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
-version = "1.13.0"
+version = "1.14.0"
 weakdeps = ["Adapt"]
 
     [deps.OffsetArrays.extensions]
@@ -1214,7 +1290,7 @@ version = "1.3.5+1"
 [[deps.OpenBLAS_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "Libdl"]
 uuid = "4536629a-c528-5b80-bd46-f80d51c5b363"
-version = "0.3.23+2"
+version = "0.3.23+4"
 
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -1229,9 +1305,9 @@ version = "1.4.2"
 
 [[deps.OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "60e3045590bd104a16fefb12836c00c0ef8c7f8c"
+git-tree-sha1 = "3da7367955dcc5c54c1ba4d402ccdc09a1a3e046"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
-version = "3.0.13+0"
+version = "3.0.13+1"
 
 [[deps.OpenSpecFun_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Pkg"]
@@ -1291,9 +1367,9 @@ version = "1.4.1"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "PrecompileTools", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SparseArrays", "Statistics", "StatsBase", "UUIDs", "UnicodeFun", "UnitfulLatexify", "Unzip"]
-git-tree-sha1 = "3c403c6590dd93b36752634115e20137e79ab4df"
+git-tree-sha1 = "442e1e7ac27dd5ff8825c3fa62fbd1e86397974b"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.40.2"
+version = "1.40.4"
 
     [deps.Plots.extensions]
     FileIOExt = "FileIO"
@@ -1399,9 +1475,9 @@ version = "0.6.12"
 
 [[deps.RecursiveArrayTools]]
 deps = ["Adapt", "ArrayInterface", "DocStringExtensions", "GPUArraysCore", "IteratorInterfaceExtensions", "LinearAlgebra", "RecipesBase", "SparseArrays", "StaticArraysCore", "Statistics", "SymbolicIndexingInterface", "Tables"]
-git-tree-sha1 = "a94d22ca9ad49a7a169ecbc5419c59b9793937cc"
+git-tree-sha1 = "d8f131090f2e44b145084928856a561c83f43b27"
 uuid = "731186ca-8d62-57ce-b412-fbd966d074cd"
-version = "3.12.0"
+version = "3.13.0"
 
     [deps.RecursiveArrayTools.extensions]
     RecursiveArrayToolsFastBroadcastExt = "FastBroadcast"
@@ -1440,9 +1516,9 @@ version = "1.3.0"
 
 [[deps.Roots]]
 deps = ["Accessors", "ChainRulesCore", "CommonSolve", "Printf"]
-git-tree-sha1 = "754acd3031a9f2eaf6632ba4850b1c01fe4460c1"
+git-tree-sha1 = "1ab580704784260ee5f45bffac810b152922747b"
 uuid = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
-version = "2.1.2"
+version = "2.1.5"
 
     [deps.Roots.extensions]
     RootsForwardDiffExt = "ForwardDiff"
@@ -1615,10 +1691,10 @@ uuid = "bea87d4a-7f5b-5778-9afe-8cc45184846c"
 version = "7.2.1+1"
 
 [[deps.SymbolicIndexingInterface]]
-deps = ["MacroTools", "RuntimeGeneratedFunctions"]
-git-tree-sha1 = "f7b1fc9fc2bc938436b7684c243be7d317919056"
+deps = ["Accessors", "ArrayInterface", "MacroTools", "RuntimeGeneratedFunctions", "StaticArraysCore"]
+git-tree-sha1 = "40ea524431a92328cd73582d1820a5b08247a40f"
 uuid = "2efcf032-c050-4f8e-a9bb-153293bab1f5"
-version = "0.3.11"
+version = "0.3.16"
 
 [[deps.TOML]]
 deps = ["Dates"]
@@ -1659,9 +1735,9 @@ uuid = "a759f4b9-e2f1-59dc-863e-4aeb61b1ea8f"
 version = "0.5.23"
 
 [[deps.TranscodingStreams]]
-git-tree-sha1 = "3caa21522e7efac1ba21834a03734c57b4611c7e"
+git-tree-sha1 = "71509f04d045ec714c4748c785a59045c3736349"
 uuid = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
-version = "0.10.4"
+version = "0.10.7"
 weakdeps = ["Random", "Test"]
 
     [deps.TranscodingStreams.extensions]
@@ -1733,9 +1809,9 @@ version = "0.5.6"
 
 [[deps.XML2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libiconv_jll", "Zlib_jll"]
-git-tree-sha1 = "07e470dabc5a6a4254ffebc29a1b3fc01464e105"
+git-tree-sha1 = "532e22cf7be8462035d092ff21fada7527e2c488"
 uuid = "02c8fc9c-b97f-50b9-bbe4-9be30ff0a78a"
-version = "2.12.5+0"
+version = "2.12.6+0"
 
 [[deps.XSLT_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libgcrypt_jll", "Libgpg_error_jll", "Libiconv_jll", "Pkg", "XML2_jll", "Zlib_jll"]
@@ -1745,9 +1821,9 @@ version = "1.1.34+0"
 
 [[deps.XZ_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "31c421e5516a6248dfb22c194519e37effbf1f30"
+git-tree-sha1 = "ac88fb95ae6447c8dda6a5503f3bafd496ae8632"
 uuid = "ffd25f8a-64ca-5728-b0f7-c24cf3aae800"
-version = "5.6.1+0"
+version = "5.4.6+0"
 
 [[deps.Xorg_libICE_jll]]
 deps = ["Libdl", "Pkg"]
@@ -1900,9 +1976,9 @@ version = "1.2.13+1"
 
 [[deps.Zstd_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "49ce682769cd5de6c72dcf1b94ed7790cd08974c"
+git-tree-sha1 = "e678132f07ddb5bfa46857f0d7620fb9be675d3b"
 uuid = "3161d3a3-bdf6-5164-811a-617609db77b4"
-version = "1.5.5+0"
+version = "1.5.6+0"
 
 [[deps.eudev_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg", "gperf_jll"]
@@ -2066,7 +2142,10 @@ version = "1.4.1+1"
 # ╠═1acf4cfe-7aee-4908-88ca-1234a31fa8b6
 # ╠═ab40b735-5b9f-4ed9-bd50-57c6093ba223
 # ╠═a03e4d71-2a94-46a6-9e5d-f6d2666e5d2a
+# ╠═abcb0572-c125-4658-8fd2-80a0c7a29ea9
 # ╠═b216fad1-d84e-4159-9322-f75117587f81
+# ╠═7db95481-787f-4d43-ac34-ee803f31baf2
+# ╠═28f32b3f-aecf-4822-943e-e8e6be19583f
 # ╠═9dfdf306-9dc9-47d1-84e6-919696ef8608
 # ╠═52394458-2946-41e4-a2ed-3a599f198939
 # ╠═a7a19db9-bb64-4bba-aeda-51a24733cfff

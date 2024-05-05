@@ -8,4 +8,5 @@
 8.  Density at 10000m (32808ft):0.4135, RE: 11.08e6; 
     Density at 15000m (49213ft):0.1948, RE: 5.22e6; 
     Designed curise (45000ft): 0.2388, RE: 6.40e6;
-    
+9. Aerodynamics calculation is only conducted at Curise settings
+10. Stability: 2 passenger: at front; 8 passenger: at seat

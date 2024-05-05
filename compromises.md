@@ -11,3 +11,4 @@
 9. Aerodynamics calculation is only conducted at Curise settings
 10. Stability: 2 passenger: can go everywhere; 4 passenger: 2 at front, 2 at rare; 
 11. Initial design: 70066kg; After: 70064kg. Difference: 2kg, neglected
+12. 

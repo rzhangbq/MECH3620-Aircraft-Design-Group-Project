@@ -1,4 +1,10 @@
-# Highlights
+## Section 1: 相比于期中
+a. 修正了stall speed
+b. Range: 加了500km的margin和45min loiter
+c. Takeoff Parameter: BFL
+d. Matching chart 加了对比
+
+## Section 2: Highlights
 1. Above wing engine - stability; noise; wing load
 2. Opt on the main wing airfoil
 3. Wash out on the wing

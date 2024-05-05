@@ -9,5 +9,5 @@
     Density at 15000m (49213ft):0.1948, RE: 5.22e6; 
     Designed curise (45000ft): 0.2388, RE: 6.40e6;
 9. Aerodynamics calculation is only conducted at Curise settings
-10. Stability: 2 passenger: at front; 8 passenger: at seat
+10. Stability: 2 passenger: can go everywhere; 4 passenger: 2 at front, 2 at rare; 
 11. Initial design: 70066kg; After: 70064kg. Difference: 2kg, neglected

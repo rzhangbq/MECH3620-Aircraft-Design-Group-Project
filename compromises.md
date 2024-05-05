@@ -10,3 +10,4 @@
     Designed curise (45000ft): 0.2388, RE: 6.40e6;
 9. Aerodynamics calculation is only conducted at Curise settings
 10. Stability: 2 passenger: at front; 8 passenger: at seat
+11. Initial design: 70066kg; After: 70064kg. Difference: 2kg, neglected

@@ -231,8 +231,14 @@ md"### Stabilizers"
 # ╔═╡ 63a82ccb-21e4-4edc-81df-cd9f84953372
 md"#### Horizontal Tail"
 
+# ╔═╡ 286311ea-c9d6-427a-89b2-7dc7ef17f4d7
+foil_1 = read_foil(download("http://airfoiltools.com/airfoil/seligdatfile?airfoil=sc20010-il")) #HT
+
 # ╔═╡ 647698ec-1f80-4ddd-ae98-f40a05ea75c6
-con_foil = control_surface(naca4(0,0,1,2), hinge = 0.75, angle = -10.)
+con_foil = control_surface(foil_1, hinge = 0.75, angle = -10.)
+
+# ╔═╡ 865ab629-d511-471c-9f35-ea9ec85852ff
+
 
 # ╔═╡ fbeb3c61-6c88-4aa5-9925-3510a00e366e
 htail = WingSection(
@@ -306,6 +312,47 @@ V_v = S_v / S_w * (mac_v.x - mac_w.x) / b_w
 
 # ╔═╡ 45492dc3-ccfa-4eff-8ae7-5f922aff821d
 mac_vtail = mean_aerodynamic_center(vtail, 0.25)
+
+# ╔═╡ 1dc81387-a19b-4aeb-ad74-de5e7662b59a
+md"### OEI Analysis"
+
+# ╔═╡ efe7d598-7193-43a7-82e2-12614063a6c8
+begin
+	
+	T_e = 16010 #N takeoff thrust of one engine
+	y_t = 1.5 #m distance from engine to cg
+	V_stall = 56.54 #m/s 110 knots
+	angle = 25 #degree rudder deflection
+	rho = 0.2388 #kg/m^3 at 13700 m
+	C_Lav = 0.1 #vertical tail SC(2)-0010 lift curve slope
+	eta = 1 #(q_v/q_in) vt dynamic pressure ratio
+	#rudder-chord-to-vertical-tail-chord ratio
+
+end
+
+# ╔═╡ 5ca9bb4a-4948-4a94-bffa-a6f16db30c19
+# Critical engine-out yawing moment
+N_tcrit = T_e * y_t
+
+# ╔═╡ 8d8475fa-a166-47ab-b33a-5604a048415e
+#Drag-induced yawing moment
+N_D = 0.15 * N_tcrit #low-BPR jet
+
+# ╔═╡ d9dbdf0e-20c4-4fd8-9d1b-2ddedb0ed62f
+Totel_N = N_tcrit + N_D
+
+# ╔═╡ 4c412ef7-4167-4162-b310-99c80e46e9ed
+V_mc = 1.2 * V_stall #minimum control speed
+
+# ╔═╡ 34ad9f56-180e-42fc-93ed-61d607bf6689
+q = 1/2 * rho * (V_mc)^2
+
+# ╔═╡ 23a4ead7-a2f2-491e-9bf0-00d33d8a4dca
+C_n = - C_Lav * V_v * eta * 0.32 * 0.8977
+# C_n = eta * C_Lvt * (S_v/S_w) * (l_vtcg/b_w) * spanfactor * 0.32
+
+# ╔═╡ 51f436fd-5444-4b5e-8dcc-7b53868e5e41
+M_v = q * S_v * b_v * C_n * angle
 
 # ╔═╡ f2587d9c-8028-46f7-9610-869d9eb15c73
 md"""
@@ -794,6 +841,13 @@ x_cg = r_cg.x  # x-component
 
 # ╔═╡ 27fe5e26-5353-4997-9295-5aea6e3f9b47
 x_cg
+
+# ╔═╡ 845316dd-1875-4bf6-8428-871464d5b193
+begin #estimated parameters
+	l_vtcg = 11.273 - x_cg
+	C_Lvt = 1 #rolling moment dihedral effect by vt
+	spanfactor = 1
+end
 
 # ╔═╡ bdb53335-1b9e-4ef3-9aa7-0861d01a4c29
 r_mLG
@@ -2868,7 +2922,9 @@ version = "1.4.1+0"
 # ╟─79a60ed4-5281-4261-90fb-5f2bfc928758
 # ╟─3dd1f51b-26e2-44f1-b754-fb58612e7d7c
 # ╟─63a82ccb-21e4-4edc-81df-cd9f84953372
+# ╠═286311ea-c9d6-427a-89b2-7dc7ef17f4d7
 # ╠═647698ec-1f80-4ddd-ae98-f40a05ea75c6
+# ╠═865ab629-d511-471c-9f35-ea9ec85852ff
 # ╠═fbeb3c61-6c88-4aa5-9925-3510a00e366e
 # ╠═9ac640ed-b400-46f8-89bc-650a5d2801ff
 # ╠═6085715c-9ab0-4fe8-b159-9a814bc572e8
@@ -2878,7 +2934,7 @@ version = "1.4.1+0"
 # ╠═185f315c-ccc9-4c9c-be91-f30c8046b27a
 # ╠═8ab5fc32-41f1-4492-bc35-7d0cb5864162
 # ╠═9ad5a526-a1a5-4d3c-a570-ba505aff30e2
-# ╟─79978d9e-c28a-4787-9d6a-ac753331111e
+# ╠═79978d9e-c28a-4787-9d6a-ac753331111e
 # ╠═72c1cb62-58da-40c8-a5ff-5f9325360fe8
 # ╠═02dcefce-3b27-441f-a76b-9dba2c7b2b72
 # ╠═659c3d72-85e2-4f39-aa49-cbc83066c345
@@ -2887,6 +2943,16 @@ version = "1.4.1+0"
 # ╠═edd73ae8-6bf2-4585-9275-166e3ee7a017
 # ╠═45492dc3-ccfa-4eff-8ae7-5f922aff821d
 # ╠═5df7cc31-e6b7-46cb-ac41-8a5f07cf35fb
+# ╟─1dc81387-a19b-4aeb-ad74-de5e7662b59a
+# ╠═efe7d598-7193-43a7-82e2-12614063a6c8
+# ╠═5ca9bb4a-4948-4a94-bffa-a6f16db30c19
+# ╠═8d8475fa-a166-47ab-b33a-5604a048415e
+# ╠═d9dbdf0e-20c4-4fd8-9d1b-2ddedb0ed62f
+# ╠═34ad9f56-180e-42fc-93ed-61d607bf6689
+# ╠═4c412ef7-4167-4162-b310-99c80e46e9ed
+# ╠═845316dd-1875-4bf6-8428-871464d5b193
+# ╠═23a4ead7-a2f2-491e-9bf0-00d33d8a4dca
+# ╠═51f436fd-5444-4b5e-8dcc-7b53868e5e41
 # ╟─f2587d9c-8028-46f7-9610-869d9eb15c73
 # ╟─117d30e6-1252-4198-b348-6a1e5e798070
 # ╠═a62696dc-171a-4978-8de9-0ab643987b41
